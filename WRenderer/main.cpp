@@ -44,6 +44,7 @@ Create and destroy a Vulkan surface on an SDL window.
 
 #include "Error.h"
 #include "DeviceInfo.h"
+#include "SwapChain.h"
 
 vk::SurfaceKHR createVulkanSurface(const vk::Instance& instance, SDL_Window* window);
 std::vector<const char*> getAvailableWSIExtensions();
@@ -109,13 +110,13 @@ int main()
 
     // This is where most initializtion for a program should be performed
 	DeviceInfo info(instance, surface);
-	std::unique_ptr<vk::Device> device = info.CreateDevice(DEFAULT_GPU_INDEX);
+	Device& device = info.CreateDevice(DEFAULT_GPU_INDEX);
 	
 	// Create command pool
 	vk::CommandPool cmdPool;
 	vk::CommandPoolCreateInfo cmdPoolCreateInfo;
 	cmdPoolCreateInfo.setQueueFamilyIndex(DEFAULT_GPU_INDEX);
-	vk::Result res = device->createCommandPool(&cmdPoolCreateInfo, nullptr, &cmdPool);
+	vk::Result res = device.mDevice.createCommandPool(&cmdPoolCreateInfo, nullptr, &cmdPool);
 	WASSERT(res == vk::Result::eSuccess, "Failed to create command pool.");
 
 	// create command buffer allocation info
@@ -126,8 +127,11 @@ int main()
 
 	// create command buffer
 	vk::CommandBuffer cmdBuffer;
-	res = device->allocateCommandBuffers(&cmdBufferAllocInfo, &cmdBuffer);
+	res = device.mDevice.allocateCommandBuffers(&cmdBufferAllocInfo, &cmdBuffer);
 	WASSERT(res == vk::Result::eSuccess, "Failed to create command buffer.");
+
+    // create a swap chain
+    SwapChain swapchain(instance, surface, device);
 
     // Poll for user input.
     bool stillRunning = true;

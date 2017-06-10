@@ -1,7 +1,9 @@
 #include "DeviceInfo.h"
 #include "Error.h"
 
-DeviceInfo::DeviceInfo(vk::Instance& instance, vk::SurfaceKHR& surface)
+DeviceInfo::DeviceInfo(
+    vk::Instance& instance, 
+    vk::SurfaceKHR& surface)
 	: mGpuCount(1)
 {
 	vk::Result res = instance.enumeratePhysicalDevices(&mGpuCount, nullptr);
@@ -10,8 +12,12 @@ DeviceInfo::DeviceInfo(vk::Instance& instance, vk::SurfaceKHR& surface)
     // get a list of physical VK devices
     std::vector<vk::PhysicalDevice> devices;
     devices.resize(mGpuCount);
+    mDevices.resize(mGpuCount);
 	res = instance.enumeratePhysicalDevices(&mGpuCount, &devices[0]);
-    InitPhysicalDevices(devices);
+    for (size_t i = 0; i < devices.size(); ++i)
+    {
+        mDevices[i].mPhysicalDevice = devices[i];
+    }
     devices.clear();
 
 	WASSERT(res == vk::Result::eSuccess, "Failed to enumerate physical devices.");
@@ -22,7 +28,7 @@ DeviceInfo::DeviceInfo(vk::Instance& instance, vk::SurfaceKHR& surface)
 	for (size_t i = 0; i < mDevices.size(); ++i)
 	{
 		int graphicsFlagsCount = 0;
-		vk::PhysicalDevice& device = mDevices[i].mDevice;
+		vk::PhysicalDevice& device = mDevices[i].mPhysicalDevice;
 
         // get a list of queue family for the device
 		device.getQueueFamilyProperties(&queueFamilyCount, nullptr);
@@ -55,12 +61,6 @@ DeviceInfo::DeviceInfo(vk::Instance& instance, vk::SurfaceKHR& surface)
         WASSERT(res == vk::Result::eSuccess && surfaceFormatCount > 0, "Failed to get surface formats.");
         mDevices[i].mSurfaceFormats.resize(surfaceFormatCount);
         res = device.getSurfaceFormatsKHR(surface, &surfaceFormatCount, &mDevices[i].mSurfaceFormats[0]);
-        
-        std::vector<vk::SurfaceCapabilitiesKHR> surfaceCapabilities;
-        res = device.getSurfaceCapabilitiesKHR(surface, &surfaceCapabilities[0]);
-        WASSERT(res == vk::Result::eSuccess, "Failed to get surface capabilities");
-
-
 
 		properties.clear();
 	}
@@ -84,23 +84,19 @@ DeviceInfo::~DeviceInfo()
 
 }
 
-
-void DeviceInfo::InitPhysicalDevices(std::vector<vk::PhysicalDevice>& devices)
+Device& DeviceInfo::GetDevice(
+    uint32_t index)
 {
-    mDevices.resize(devices.size());
-    for (size_t i = 0; i < devices.size(); ++i)
-    {
-        mDevices[i].mDevice = devices[i];
-    }
+    return mDevices.at(index);
 }
 
-
-std::unique_ptr<vk::Device> DeviceInfo::CreateDevice(uint32_t gpuIndex)
+Device& DeviceInfo::CreateDevice(
+    uint32_t gpuIndex)
 {
-	// create with the first gpu
-	std::unique_ptr<vk::Device> device = std::make_unique<vk::Device>();
-	vk::Result res = mDevices[gpuIndex].mDevice.createDevice(&mDeviceCreateInfo, nullptr, device.get());
+	vk::Result res = mDevices[gpuIndex].mPhysicalDevice.createDevice(
+        &mDeviceCreateInfo, 
+        nullptr, 
+        &mDevices[gpuIndex].mDevice);
 	WASSERT(res == vk::Result::eSuccess, "Failed to create device.");
-
-	return std::move(device);
+	return mDevices[gpuIndex];
 }
