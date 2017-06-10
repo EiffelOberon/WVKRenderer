@@ -161,6 +161,7 @@
     <ClCompile Include="SwapChain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DevConstants.h" />
     <ClInclude Include="DeviceInfo.h" />
     <ClInclude Include="Error.h" />
     <ClInclude Include="SwapChain.h" />

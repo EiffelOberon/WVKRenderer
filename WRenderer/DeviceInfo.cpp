@@ -31,7 +31,7 @@ DeviceInfo::DeviceInfo(vk::Instance& instance, vk::SurfaceKHR& surface)
 		device.getQueueFamilyProperties(&queueFamilyCount, &properties[0]);
 		WASSERT(queueFamilyCount > 0, "Must have at least 1 queue.");
 
-		for (size_t j = 0; j < queueFamilyCount; ++j)
+		for (uint32_t j = 0; j < queueFamilyCount; ++j)
 		{
             // 
 			vk::QueueFamilyProperties& p = properties[j];

@@ -5,8 +5,7 @@
 #include <string>
 #include <vector>
 
-#define DEFAULT_GPU_INDEX 0
-#define DEFAULT_FAMILY_INDEX 0
+#include "DevConstants.h"
 
 struct Device
 {
