@@ -1,0 +1,6 @@
+https://vulkan.lunarg.com/
+https://github.com/LunarG/VulkanSamples/blob/master/
+
+utils:
+https://github.com/LunarG/VulkanSamples/blob/a9c1ee55d6f92d7b6885d12966ea56741d7c36f4/API-Samples/utils/util_init.cpp
+https://github.com/LunarG/VulkanSamples/blob/1ca75b86958979aa276b852e3ba62c9c99b34e14/API-Samples/utils/util.hpp
