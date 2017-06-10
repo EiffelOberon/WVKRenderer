@@ -2,18 +2,33 @@
 #include <cstdint>
 #include <vulkan/vulkan.hpp>
 
+#include <string>
+#include <vector>
+
 #define DEFAULT_GPU_INDEX 0
+#define DEFAULT_FAMILY_INDEX 0
+
+struct Device
+{
+    vk::PhysicalDevice mDevice;
+    vk::Bool32 mSupportPresent;
+    std::vector<uint32_t> mGraphicsQueueFamilyIndex;    // Queue Family Index that supports Graphics
+    std::vector<uint32_t> mPresentQueueFamilyIndex;     // Queue Family Index that supports Present
+    std::vector<vk::SurfaceFormatKHR> mSurfaceFormats;   // Surface formats supported by the Device
+};
 
 class DeviceInfo
 {
 private:
+    void InitPhysicalDevices(std::vector<vk::PhysicalDevice>& devices);
+
 	uint32_t mGpuCount;										// number of GPUs on this computer
-	std::vector<vk::PhysicalDevice> mDevices;				// array of VK physical devices
-	std::vector<uint32_t> mDeviceGraphicsQueue;				// array of queue family indices for graphics
-	std::vector<bool> mDeviceSupportPresent;				// array of boolean of devices supporting present
+	std::vector<Device> mDevices;				            // array of VK physical devices
 
 	vk::DeviceQueueCreateInfo mDeviceQueueCreateInfo;		// queue create info object
 	vk::DeviceCreateInfo mDeviceCreateInfo;					// device create info object
+
+    std::vector<std::string> mDeviceExtensionNames;
 
 public:
 	DeviceInfo(vk::Instance& instance, vk::SurfaceKHR& surface);
