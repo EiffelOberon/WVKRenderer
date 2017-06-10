@@ -1,0 +1,11 @@
+WRenderer/x64/Debug/WRenderer.tlog/CL.read.1.tlog
+*.tlog
+.vs/WRenderer/v15/ipch/AutoPCH/WRENDERER-c091dea6/SWAPCHAIN-2a41bbcd/SWAPCHAIN.ipch
+*.db
+.vs/WRenderer/v15/Browse.VC.opendb
+*.ipch
+WRenderer/x64/Debug/WRenderer.log
+*.pdb
+WRenderer/x64/Debug/vc140.idb
+*.suo
+WRenderer/x64/Debug/DeviceInfo.obj

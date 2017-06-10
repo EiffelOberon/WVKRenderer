@@ -6,21 +6,21 @@ DeviceInfo::DeviceInfo(
     vk::SurfaceKHR& surface)
 	: mGpuCount(1)
 {
-	vk::Result res = instance.enumeratePhysicalDevices(&mGpuCount, nullptr);
-	WASSERT(mGpuCount > 0 && res == vk::Result::eSuccess, "Must have at least 1 GPU.");
+	WERROR(instance.enumeratePhysicalDevices(&mGpuCount, nullptr),
+        "Failed to get GPU count.");
+	WASSERT((mGpuCount > 0), "Must have at least 1 GPU.");
 	
     // get a list of physical VK devices
     std::vector<vk::PhysicalDevice> devices;
     devices.resize(mGpuCount);
     mDevices.resize(mGpuCount);
-	res = instance.enumeratePhysicalDevices(&mGpuCount, &devices[0]);
+	WERROR(instance.enumeratePhysicalDevices(&mGpuCount, &devices[0]),
+        "Failed to enumerate physical devices.");
     for (size_t i = 0; i < devices.size(); ++i)
     {
         mDevices[i].mPhysicalDevice = devices[i];
     }
     devices.clear();
-
-	WASSERT(res == vk::Result::eSuccess, "Failed to enumerate physical devices.");
 
 	// get a list of graphics queue
 	uint32_t queueFamilyCount = 0;
@@ -32,10 +32,10 @@ DeviceInfo::DeviceInfo(
 
         // get a list of queue family for the device
 		device.getQueueFamilyProperties(&queueFamilyCount, nullptr);
-		WASSERT(queueFamilyCount > 0, "Must have at least 1 queue.");
+		WASSERT((queueFamilyCount > 0), "Must have at least 1 queue.");
 		properties.resize(queueFamilyCount);
 		device.getQueueFamilyProperties(&queueFamilyCount, &properties[0]);
-		WASSERT(queueFamilyCount > 0, "Must have at least 1 queue.");
+		WASSERT((queueFamilyCount > 0), "Must have at least 1 queue.");
 
 		for (uint32_t j = 0; j < queueFamilyCount; ++j)
 		{
@@ -44,8 +44,8 @@ DeviceInfo::DeviceInfo(
 			if (p.queueFlags & vk::QueueFlagBits::eGraphics)
 			{
 				vk::Bool32 supportPresent = false;
-				res = device.getSurfaceSupportKHR(j, surface, &supportPresent);
-                WASSERT(res == vk::Result::eSuccess, "Failed to get surface present support.")
+				WERROR(device.getSurfaceSupportKHR(j, surface, &supportPresent),
+                    "Failed to get surface present support.");
 
                 // only storing result for graphics capable queue's info for the GPU
                 // ignoring the rest (TRANSFER / COMPUTE)
@@ -57,10 +57,13 @@ DeviceInfo::DeviceInfo(
 
         // get a list of surface formats
         uint32_t surfaceFormatCount = 0;
-        res = device.getSurfaceFormatsKHR(surface, &surfaceFormatCount, nullptr);
-        WASSERT(res == vk::Result::eSuccess && surfaceFormatCount > 0, "Failed to get surface formats.");
+        WERROR(device.getSurfaceFormatsKHR(surface, &surfaceFormatCount, nullptr),
+            "Failed to get surface formats.");
+        WASSERT((surfaceFormatCount > 0),
+            "Surface format count must be greater than 0.");
         mDevices[i].mSurfaceFormats.resize(surfaceFormatCount);
-        res = device.getSurfaceFormatsKHR(surface, &surfaceFormatCount, &mDevices[i].mSurfaceFormats[0]);
+        WERROR(device.getSurfaceFormatsKHR(surface, &surfaceFormatCount, &mDevices[i].mSurfaceFormats[0]),
+            "Failed to get surface formats.");
 
 		properties.clear();
 	}
@@ -93,10 +96,10 @@ Device& DeviceInfo::GetDevice(
 Device& DeviceInfo::CreateDevice(
     uint32_t gpuIndex)
 {
-	vk::Result res = mDevices[gpuIndex].mPhysicalDevice.createDevice(
-        &mDeviceCreateInfo, 
-        nullptr, 
-        &mDevices[gpuIndex].mDevice);
-	WASSERT(res == vk::Result::eSuccess, "Failed to create device.");
+    WERROR(mDevices[gpuIndex].mPhysicalDevice.createDevice(
+        &mDeviceCreateInfo,
+        nullptr,
+        &mDevices[gpuIndex].mDevice),
+        "Failed to create logical device.");
 	return mDevices[gpuIndex];
 }

@@ -116,8 +116,8 @@ int main()
 	vk::CommandPool cmdPool;
 	vk::CommandPoolCreateInfo cmdPoolCreateInfo;
 	cmdPoolCreateInfo.setQueueFamilyIndex(DEFAULT_GPU_INDEX);
-	vk::Result res = device.mDevice.createCommandPool(&cmdPoolCreateInfo, nullptr, &cmdPool);
-	WASSERT(res == vk::Result::eSuccess, "Failed to create command pool.");
+	WERROR(device.mDevice.createCommandPool(&cmdPoolCreateInfo, nullptr, &cmdPool), 
+        "Failed to create command pool.");
 
 	// create command buffer allocation info
 	vk::CommandBufferAllocateInfo cmdBufferAllocInfo;
@@ -127,8 +127,8 @@ int main()
 
 	// create command buffer
 	vk::CommandBuffer cmdBuffer;
-	res = device.mDevice.allocateCommandBuffers(&cmdBufferAllocInfo, &cmdBuffer);
-	WASSERT(res == vk::Result::eSuccess, "Failed to create command buffer.");
+	WERROR(device.mDevice.allocateCommandBuffers(&cmdBufferAllocInfo, &cmdBuffer), 
+        "Failed to create command buffer.");
 
     // create a swap chain
     SwapChain swapchain(instance, surface, device);

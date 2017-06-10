@@ -9,8 +9,8 @@ SwapChain::SwapChain(
 {
     // Get Surface Capabilities for the device
     vk::SurfaceCapabilitiesKHR surfaceCapabilities;
-    vk::Result res = device.mPhysicalDevice.getSurfaceCapabilitiesKHR(surface, &surfaceCapabilities);
-    WASSERT(res == vk::Result::eSuccess, "Failed to get surface capabilities");
+    WERROR(device.mPhysicalDevice.getSurfaceCapabilitiesKHR(surface, &surfaceCapabilities),
+        "Failed to get surface capabilities.");
 
     // get details of what is supported by Surface Capabilities
     uint32_t swapChainImagesCount = surfaceCapabilities.minImageCount;
@@ -28,13 +28,24 @@ SwapChain::SwapChain(
     createInfo.setPNext(nullptr)
         .setCompositeAlpha(alphaBit)
         .setSurface(surface)
+        .setImageArrayLayers(1)
+        .setImageColorSpace(device.mSurfaceFormats[0].colorSpace)
+        .setImageExtent(extent)
         .setImageFormat(device.mSurfaceFormats[0].format)
         .setMinImageCount(swapChainImagesCount)
-        .setImageExtent(extent)
+        .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
         .setPresentMode(vk::PresentModeKHR::eFifo)
-        .setPreTransform(identity ? vk::SurfaceTransformFlagBitsKHR::eIdentity : surfaceCapabilities.currentTransform);
+        .setPreTransform(identity ? vk::SurfaceTransformFlagBitsKHR::eIdentity : surfaceCapabilities.currentTransform)
+        .setPQueueFamilyIndices(DEFAULT_FAMILY_INDEX)
+        .setPQueueFamilyIndices(nullptr);
+    WASSERT(device.mPresentQueueFamilyIndex[0] == device.mGraphicsQueueFamilyIndex[0], 
+        "Unhandled different Queue Family Index.");
 
-    
+    vk::SwapchainKHR swapChain;
+    WERROR(device.mDevice.createSwapchainKHR(&createInfo, nullptr, &swapChain),
+        "Failed to create swap chain.");
+
+
     /*createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
     createInfo.pNext = NULL;
     createInfo.hinstance = info.connection;
@@ -47,7 +58,7 @@ SwapChain::~SwapChain()
 
 }
 
-vk::CompositeAlphaFlagBitsKHR GetSupportedAlphaBit(
+vk::CompositeAlphaFlagBitsKHR SwapChain::GetSupportedAlphaBit(
     vk::SurfaceCapabilitiesKHR& surfaceCapabilities)
 {
     vk::CompositeAlphaFlagBitsKHR compositeAlphaFlags[4] = 
