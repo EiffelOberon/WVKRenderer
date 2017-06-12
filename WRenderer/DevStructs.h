@@ -10,3 +10,9 @@ struct Device
     std::vector<uint32_t> mPresentQueueFamilyIndex;     // Queue Family Index that supports Present
     std::vector<vk::SurfaceFormatKHR> mSurfaceFormats;  // Surface formats supported by the Device
 };
+
+struct BackBuffer
+{
+    vk::Image mImage;
+    vk::ImageView mImageView;
+};

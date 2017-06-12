@@ -14,8 +14,9 @@
 
 #define WERROR(a, b)\
                 {\
-                    assert(a == vk::Result::eSuccess);\
-                    if(a != vk::Result::eSuccess)\
+                    vk::Result result = a;\
+                    assert(result== vk::Result::eSuccess);\
+                    if(result != vk::Result::eSuccess)\
                     {\
                         std::cout << b << std::endl;\
                     }\

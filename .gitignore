@@ -9,3 +9,15 @@ WRenderer/x64/Debug/WRenderer.log
 WRenderer/x64/Debug/vc140.idb
 *.suo
 WRenderer/x64/Debug/DeviceInfo.obj
+WRenderer/x64/Debug/main.obj
+WRenderer/x64/Debug/SwapChain.obj
+x64/Release/WRenderer.exe
+*.ilk
+x64/Debug/WRenderer.exe
+*.log
+WRenderer/x64/Release/main.obj
+WRenderer/x64/Debug/vc141.idb
+*.idb
+*.filters
+*.sdf
+Debug/WRenderer.exe

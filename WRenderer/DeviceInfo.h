@@ -19,7 +19,7 @@ private:
 	vk::DeviceQueueCreateInfo mDeviceQueueCreateInfo;		// queue create info object
 	vk::DeviceCreateInfo mDeviceCreateInfo;					// device create info object
 
-    std::vector<std::string> mDeviceExtensionNames;
+    std::vector<const char*> mDeviceExtensionNames;
 
 public:
 	DeviceInfo(vk::Instance& instance, vk::SurfaceKHR& surface);
