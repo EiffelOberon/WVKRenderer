@@ -1,5 +1,4 @@
 #include "SwapChain.h"
-
 #include "Error.h"
 
 SwapChain::SwapChain(
@@ -44,14 +43,8 @@ SwapChain::SwapChain(
     vk::SwapchainKHR swapChain;
     WERROR(device.mDevice.createSwapchainKHR(&createInfo, nullptr, &swapChain),
         "Failed to create swap chain.");
-
-
-    /*createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-    createInfo.pNext = NULL;
-    createInfo.hinstance = info.connection;
-    createInfo.hwnd = info.window;
-    res = vkCreateWin32SurfaceKHR(info.inst, &createInfo, NULL, &info.surface);*/
 }
+
 
 SwapChain::~SwapChain()
 {
