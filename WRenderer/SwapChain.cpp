@@ -33,16 +33,17 @@ SwapChain::SwapChain(
         .setImageFormat(device.mSurfaceFormats[0].format)
         .setMinImageCount(swapChainImagesCount)
         .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
-        .setPresentMode(vk::PresentModeKHR::eFifo)
-        .setPreTransform(identity ? vk::SurfaceTransformFlagBitsKHR::eIdentity : surfaceCapabilities.currentTransform)
+        .setPresentMode(vk::PresentModeKHR::eFifo)  //TODO: don't understand present mode
+        .setPreTransform(identity ? vk::SurfaceTransformFlagBitsKHR::eIdentity : surfaceCapabilities.currentTransform)  //TODO: don't understand swapchain transform
         .setPQueueFamilyIndices(DEFAULT_FAMILY_INDEX)
         .setPQueueFamilyIndices(nullptr);
     WASSERT(device.mPresentQueueFamilyIndex[0] == device.mGraphicsQueueFamilyIndex[0], 
         "Unhandled different Queue Family Index.");
 
-    vk::SwapchainKHR swapChain;
-    WERROR(device.mDevice.createSwapchainKHR(&createInfo, nullptr, &swapChain),
-        "Failed to create swap chain.");
+    WERROR(device.mDevice.createSwapchainKHR(&createInfo, nullptr, &mSwapChain),
+        "Failed to create swapchain.");
+
+    InitBackBuffers(device);
 }
 
 
@@ -54,7 +55,7 @@ SwapChain::~SwapChain()
 vk::CompositeAlphaFlagBitsKHR SwapChain::GetSupportedAlphaBit(
     vk::SurfaceCapabilitiesKHR& surfaceCapabilities)
 {
-    vk::CompositeAlphaFlagBitsKHR compositeAlphaFlags[4] = 
+    vk::CompositeAlphaFlagBitsKHR compositeAlphaFlags[4] =
     {
         vk::CompositeAlphaFlagBitsKHR::eOpaque,
         vk::CompositeAlphaFlagBitsKHR::ePreMultiplied,
@@ -70,4 +71,56 @@ vk::CompositeAlphaFlagBitsKHR SwapChain::GetSupportedAlphaBit(
         }
     }
     return vk::CompositeAlphaFlagBitsKHR::eOpaque;
+}
+
+void SwapChain::InitBackBuffers(Device& device)
+{
+    std::vector<vk::Image> images;
+    std::vector<vk::ImageView> imageViews;
+
+    WASSERT(mBackBuffers.size() == 0, "VKImage list must have no element at this point.");
+
+    // verify image count for swapchain
+    uint32_t count = 0;
+    WERROR(device.mDevice.getSwapchainImagesKHR(mSwapChain, &count, nullptr),
+        "Unable to retrieve swapchain images.");
+    WASSERT((count > 0), "Swapchain image count is 0.");
+
+    // get a list of mImages
+    images.resize(count);
+    imageViews.resize(count);
+    mBackBuffers.resize(count);
+    WERROR(device.mDevice.getSwapchainImagesKHR(mSwapChain, &count, &images[0]),
+        "Unable to retrieve swapchain images.");
+
+    // create image view
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        vk::ComponentMapping componentMapping(
+            vk::ComponentSwizzle::eR,
+            vk::ComponentSwizzle::eG,
+            vk::ComponentSwizzle::eB,
+            vk::ComponentSwizzle::eA);
+
+        vk::ImageSubresourceRange range(
+            vk::ImageAspectFlagBits::eColor, 
+            0 /*base mip level*/, 
+            1 /*level count*/, 
+            0 /*base array layer*/, 
+            1 /*layer count*/);
+
+        vk::ImageViewCreateInfo createInfo;
+        createInfo.setPNext(nullptr)
+            .setImage(images[i])
+            .setViewType(vk::ImageViewType::e2D)
+            .setFormat(device.mSurfaceFormats[0].format)
+            .setComponents(componentMapping)
+            .setSubresourceRange(range);
+
+        WERROR(device.mDevice.createImageView(&createInfo, nullptr, &imageViews[i]),
+            "Failed to create image view");
+
+        mBackBuffers[i].mImage = images[i];
+        mBackBuffers[i].mImageView = imageViews[i];
+    }
 }

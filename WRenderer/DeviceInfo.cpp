@@ -66,7 +66,9 @@ DeviceInfo::DeviceInfo(
             "Failed to get surface formats.");
 
 		properties.clear();
-	}
+    }
+
+    mDeviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
 	// one queue for now, TODO expand this
 	float queuePriorities[1] = { 0.0 };
@@ -75,11 +77,12 @@ DeviceInfo::DeviceInfo(
 		.setPQueuePriorities(queuePriorities)
 		.setQueueFamilyIndex(mDevices[DEFAULT_GPU_INDEX].mGraphicsQueueFamilyIndex[DEFAULT_FAMILY_INDEX]);
 
-	mDeviceCreateInfo = vk::DeviceCreateInfo()
-		.setQueueCreateInfoCount(1)
-		.setPQueueCreateInfos(&mDeviceQueueCreateInfo);
+    mDeviceCreateInfo = vk::DeviceCreateInfo()
+        .setQueueCreateInfoCount(1)
+        .setPQueueCreateInfos(&mDeviceQueueCreateInfo)
+        .setEnabledExtensionCount(mDeviceExtensionNames.size())
+        .setPpEnabledExtensionNames(&mDeviceExtensionNames[0]);
 
-    mDeviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 }
 
 DeviceInfo::~DeviceInfo()
