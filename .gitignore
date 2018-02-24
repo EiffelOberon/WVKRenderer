@@ -9,3 +9,11 @@ WRenderer/x64/Debug/WRenderer.log
 WRenderer/x64/Debug/vc140.idb
 *.suo
 WRenderer/x64/Debug/DeviceInfo.obj
+WRenderer/x64/Debug/SwapChain.obj
+WRenderer.sdf
+*.log
+WRenderer/x64/Debug/main.obj
+WRenderer/x64/Debug/Texture.obj
+*.idb
+*.ilk
+x64/Debug/WRenderer.exe
