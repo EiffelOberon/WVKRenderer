@@ -156,16 +156,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DepthTexture.cpp" />
+    <ClCompile Include="Device.cpp" />
     <ClCompile Include="DeviceInfo.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SwapChain.cpp" />
+    <ClCompile Include="UniformBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DepthTexture.h" />
     <ClInclude Include="DevConstants.h" />
+    <ClInclude Include="Device.h" />
     <ClInclude Include="DeviceInfo.h" />
     <ClInclude Include="DevStructs.h" />
     <ClInclude Include="Error.h" />
     <ClInclude Include="SwapChain.h" />
+    <ClInclude Include="UniformBuffer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

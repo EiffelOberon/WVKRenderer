@@ -116,7 +116,7 @@ int main()
 	vk::CommandPool cmdPool;
 	vk::CommandPoolCreateInfo cmdPoolCreateInfo;
 	cmdPoolCreateInfo.setQueueFamilyIndex(DEFAULT_GPU_INDEX);
-	WERROR(device.mDevice.createCommandPool(&cmdPoolCreateInfo, nullptr, &cmdPool), 
+	WERROR(device.GetDevice().createCommandPool(&cmdPoolCreateInfo, nullptr, &cmdPool), 
         "Failed to create command pool.");
 
 	// create command buffer allocation info
@@ -127,7 +127,7 @@ int main()
 
 	// create command buffer
 	vk::CommandBuffer cmdBuffer;
-	WERROR(device.mDevice.allocateCommandBuffers(&cmdBufferAllocInfo, &cmdBuffer), 
+	WERROR(device.GetDevice().allocateCommandBuffers(&cmdBufferAllocInfo, &cmdBuffer), 
         "Failed to create command buffer.");
 
     // create a swap chain
@@ -135,8 +135,8 @@ int main()
 
     // Poll for user input.
     bool stillRunning = true;
-    while(stillRunning) {
-
+    while(stillRunning) 
+	{
         SDL_Event event;
         while(SDL_PollEvent(&event)) {
 

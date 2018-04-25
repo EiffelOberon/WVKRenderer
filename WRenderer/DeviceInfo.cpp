@@ -1,10 +1,13 @@
 #include "DeviceInfo.h"
+#include "Device.h"
+
 #include "Error.h"
 
 DeviceInfo::DeviceInfo(
     vk::Instance& instance, 
     vk::SurfaceKHR& surface)
 	: mGpuCount(1)
+	, mQueuePriority(0.0f)
 {
 	WERROR(instance.enumeratePhysicalDevices(&mGpuCount, nullptr),
         "Failed to get GPU count.");
@@ -18,7 +21,7 @@ DeviceInfo::DeviceInfo(
         "Failed to enumerate physical devices.");
     for (size_t i = 0; i < devices.size(); ++i)
     {
-        mDevices[i].mPhysicalDevice = devices[i];
+        mDevices[i].SetPhysicalDevice(devices[i]);
     }
     devices.clear();
 
@@ -28,7 +31,7 @@ DeviceInfo::DeviceInfo(
 	for (size_t i = 0; i < mDevices.size(); ++i)
 	{
 		int graphicsFlagsCount = 0;
-		vk::PhysicalDevice& device = mDevices[i].mPhysicalDevice;
+		const vk::PhysicalDevice& device = mDevices[i].GetPhysicalDevice();
 
         // get a list of queue family for the device
 		device.getQueueFamilyProperties(&queueFamilyCount, nullptr);
@@ -49,8 +52,8 @@ DeviceInfo::DeviceInfo(
 
                 // only storing result for graphics capable queue's info for the GPU
                 // ignoring the rest (TRANSFER / COMPUTE)
-                mDevices[i].mPresentQueueFamilyIndex.push_back(j);
-                mDevices[i].mGraphicsQueueFamilyIndex.push_back(j);
+				mDevices[i].AddPresentQueueFamilyIndex(j);
+				mDevices[i].AddGraphicsQueueFamilyIndex(j);
 				mDevices[i].mSupportPresent |= supportPresent;
 			}
 		}
@@ -61,8 +64,8 @@ DeviceInfo::DeviceInfo(
             "Failed to get surface formats.");
         WASSERT((surfaceFormatCount > 0),
             "Surface format count must be greater than 0.");
-        mDevices[i].mSurfaceFormats.resize(surfaceFormatCount);
-        WERROR(device.getSurfaceFormatsKHR(surface, &surfaceFormatCount, &mDevices[i].mSurfaceFormats[0]),
+        mDevices[i].SetSurfaceFormatCount(surfaceFormatCount);
+        WERROR(device.getSurfaceFormatsKHR(surface, &surfaceFormatCount, &mDevices[i].GetSurfaceFormat(0)),
             "Failed to get surface formats.");
 
 		properties.clear();
@@ -71,18 +74,16 @@ DeviceInfo::DeviceInfo(
     mDeviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
 	// one queue for now, TODO expand this
-	float queuePriorities[1] = { 0.0 };
 	mDeviceQueueCreateInfo = vk::DeviceQueueCreateInfo()
 		.setQueueCount(1)
-		.setPQueuePriorities(queuePriorities)
-		.setQueueFamilyIndex(mDevices[DEFAULT_GPU_INDEX].mGraphicsQueueFamilyIndex[DEFAULT_FAMILY_INDEX]);
+		.setPQueuePriorities(&mQueuePriority)
+		.setQueueFamilyIndex(mDevices[DEFAULT_GPU_INDEX].GetGraphicsQueueFamilyIndex(DEFAULT_FAMILY_INDEX));
 
     mDeviceCreateInfo = vk::DeviceCreateInfo()
         .setQueueCreateInfoCount(1)
         .setPQueueCreateInfos(&mDeviceQueueCreateInfo)
         .setEnabledExtensionCount(mDeviceExtensionNames.size())
         .setPpEnabledExtensionNames(&mDeviceExtensionNames[0]);
-
 }
 
 DeviceInfo::~DeviceInfo()
@@ -99,10 +100,10 @@ Device& DeviceInfo::GetDevice(
 Device& DeviceInfo::CreateDevice(
     uint32_t gpuIndex)
 {
-    WERROR(mDevices[gpuIndex].mPhysicalDevice.createDevice(
+	WERROR(mDevices[gpuIndex].GetPhysicalDevice().createDevice(
         &mDeviceCreateInfo,
         nullptr,
-        &mDevices[gpuIndex].mDevice),
+        &mDevices[gpuIndex].GetDevice()),
         "Failed to create logical device.");
 	return mDevices[gpuIndex];
 }
