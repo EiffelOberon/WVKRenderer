@@ -24,3 +24,14 @@ x64/Release/WRenderer.exe*.idb
 *.filters
 *.sdf
 Debug/WRenderer.exe
+WRenderer/x64/Debug/UniformBuffer.obj
+WRenderer/x64/Debug/Device.obj
+WRenderer/x64/Debug/DepthTexture.obj
+WRenderer/Debug/UniformBuffer.obj
+WRenderer/Debug/SwapChain.obj
+WRenderer/Debug/main.obj
+WRenderer/Debug/DeviceInfo.obj
+WRenderer/Debug/DepthTexture.obj
+WRenderer/Debug/Device.obj
+WRenderer/Debug/vc120.idb
+WRenderer/Debug/vc141.idb

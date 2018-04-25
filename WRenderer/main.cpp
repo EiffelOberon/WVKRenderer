@@ -21,6 +21,14 @@
 Vulkan C++ Windowed Project Template
 Create and destroy a Vulkan surface on an SDL window.
 */
+// Enable the WSI extensions
+#if defined(__ANDROID__)
+#define VK_USE_PLATFORM_ANDROID_KHR
+#elif defined(__linux__)
+#define VK_USE_PLATFORM_XLIB_KHR
+#elif defined(_WIN32)
+#define VK_USE_PLATFORM_WIN32_KHR
+#endif
 
 // Tell SDL not to mess with main()
 #define SDL_MAIN_HANDLED
@@ -36,7 +44,6 @@ Create and destroy a Vulkan surface on an SDL window.
 #include "Error.h"
 #include "DeviceInfo.h"
 #include "SwapChain.h"
-#include "Texture.h"
 
 vk::SurfaceKHR createVulkanSurface(const vk::Instance& instance, SDL_Window* window);
 std::vector<const char*> getAvailableWSIExtensions();
@@ -124,7 +131,6 @@ int main()
 
     // create a swap chain
     SwapChain swapchain(instance, surface, device);
-	Texture texture(instance, device, 1600, 900);
 
     // Poll for user input.
     bool stillRunning = true;
