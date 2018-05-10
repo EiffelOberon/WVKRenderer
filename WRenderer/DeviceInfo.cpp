@@ -84,6 +84,7 @@ DeviceInfo::DeviceInfo(
         .setPQueueCreateInfos(&mDeviceQueueCreateInfo)
         .setEnabledExtensionCount(mDeviceExtensionNames.size())
         .setPpEnabledExtensionNames(&mDeviceExtensionNames[0]);
+    
 }
 
 DeviceInfo::~DeviceInfo()

@@ -8,5 +8,5 @@ Device::Device()
 
 Device::~Device()
 {
-
+    
 }

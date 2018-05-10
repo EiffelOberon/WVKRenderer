@@ -7,11 +7,13 @@
 #include "Error.h"
 
 UniformBuffer::UniformBuffer(
-	Device			&device,
-	const size_t	size)
+    Device			&device,
+    const size_t	size)
 	: mBuffer(nullptr)
 	, mMemory(nullptr)
 	, mRequirement()
+    , mSize(size)
+    , mDevice(&device)
 {
 	vk::BufferCreateInfo bufferInfo;
 	bufferInfo.setPNext(nullptr)
@@ -36,32 +38,39 @@ UniformBuffer::UniformBuffer(
 
 	vk::MemoryAllocateInfo bufferAllocInfo;
 	bufferAllocInfo.setPNext(nullptr)
-		.setMemoryTypeIndex(0)
+		.setMemoryTypeIndex(memoryTypeIndex)
 		.setAllocationSize(mRequirement.size);
 
 	WERROR(device.GetDevice().allocateMemory(&bufferAllocInfo, nullptr, &mMemory),
 		"Failed to allocate device memory for depth buffer.");
-	
-	device.GetDevice().bindBufferMemory(mBuffer, mMemory, 0);
-}
 
+	device.GetDevice().bindBufferMemory(mBuffer, mMemory, 0);
+
+    mBufferInfo.buffer = mBuffer;
+    mBufferInfo.offset = 0;
+    mBufferInfo.range = mSize;
+}
 
 UniformBuffer::~UniformBuffer()
 {
-
+    mDevice->GetDevice().destroyBuffer(mBuffer, nullptr);
 }
-
 
 void UniformBuffer::Upload(
 	Device					&device,
-	void					*&data)
+	const void		        *&data)
 {
-	device.GetDevice().mapMemory(mMemory, 0, mRequirement.size, vk::MemoryMapFlags(), (void**)&data);
-	// TODO
-	WASSERT(false, "TODO");
+    void* writePtr;
+    WERROR(device.GetDevice().mapMemory(mMemory, 0, mRequirement.size, vk::MemoryMapFlags(), (void**)&writePtr),
+        "Failed to map GPU memory.");
+    memcpy(writePtr, data, mSize);
 	device.GetDevice().unmapMemory(mMemory);
 }
 
+vk::DescriptorBufferInfo UniformBuffer::GetBufferInfo() const
+{
+    return mBufferInfo;
+}
 
 vk::MemoryRequirements UniformBuffer::GetBufferMemoryRequirement(
 	Device		&device, 
@@ -69,7 +78,6 @@ vk::MemoryRequirements UniformBuffer::GetBufferMemoryRequirement(
 {
 	return device.GetDevice().getBufferMemoryRequirements(buffer);
 }
-
 
 int UniformBuffer::GetMemoryTypeIndex(
 	const Device    				 &device,

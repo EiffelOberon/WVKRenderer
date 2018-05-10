@@ -10,14 +10,17 @@ class UniformBuffer
 public:
 	UniformBuffer(
 		Device			&device,
-		const size_t	size);
+        const size_t	size);
 
-	~UniformBuffer();
+    ~UniformBuffer();
+
+    void Upload(
+        Device	      &device,
+        const void	  *&data);
+
+    vk::DescriptorBufferInfo GetBufferInfo() const;
 
 private:
-	void Upload(
-		Device	&device,
-		void	*&data);
 
 	vk::MemoryRequirements GetBufferMemoryRequirement(
 		Device		&device,
@@ -28,7 +31,11 @@ private:
 		const vk::MemoryPropertyFlags	 memoryPropertyFlagBits,
 		const vk::MemoryRequirements	 &memRequirement);
 
-	vk::Buffer			   mBuffer;
-	vk::DeviceMemory	   mMemory; 
-	vk::MemoryRequirements mRequirement;
+	vk::Buffer			        mBuffer;
+	vk::DeviceMemory	        mMemory; 
+    vk::DescriptorBufferInfo    mBufferInfo;
+	vk::MemoryRequirements      mRequirement;
+    size_t                      mSize;
+
+    Device                      *mDevice;
 };

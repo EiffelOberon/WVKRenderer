@@ -34,6 +34,8 @@ Create and destroy a Vulkan surface on an SDL window.
 #define SDL_MAIN_HANDLED
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 #include <vulkan/vulkan.hpp>
@@ -42,8 +44,11 @@ Create and destroy a Vulkan surface on an SDL window.
 #include <vector>
 
 #include "Error.h"
+#include "DescriptorSetLayout.h"
 #include "DeviceInfo.h"
+#include "PipelineLayout.h"
 #include "SwapChain.h"
+#include "UniformBuffer.h"
 
 vk::SurfaceKHR createVulkanSurface(const vk::Instance& instance, SDL_Window* window);
 std::vector<const char*> getAvailableWSIExtensions();
@@ -131,6 +136,62 @@ int main()
 
     // create a swap chain
     SwapChain swapchain(instance, surface, device);
+
+    // test camera matrix
+    glm::mat4 test = glm::lookAtLH(
+        glm::vec3(0, 0, 5), 
+        glm::vec3(0, 0, 0), 
+        glm::vec3(0, 1, 0));
+    const void* ptr = (const void*)(glm::value_ptr(test));
+
+    UniformBuffer buffer(device, sizeof(test));
+    buffer.Upload(device, ptr);
+
+    DescriptorSetLayout descriptorSetLayout(
+        device, 
+        1, 
+        vk::DescriptorType::eUniformBuffer, 
+        vk::ShaderStageFlagBits::eVertex);
+
+    PipelineLayout p(device, 1, &descriptorSetLayout);
+
+    // ubo descriptor pool contains one descriptor
+    vk::DescriptorPoolSize descriptorPoolsCount[1];
+    descriptorPoolsCount[0].type = vk::DescriptorType::eUniformBuffer;
+    descriptorPoolsCount[0].descriptorCount = 1;
+
+    // create descriptor pool
+    vk::DescriptorPoolCreateInfo descriptorPoolInfo;
+    descriptorPoolInfo.pNext = nullptr;
+    descriptorPoolInfo.maxSets = 1;
+    descriptorPoolInfo.poolSizeCount = 1;
+    descriptorPoolInfo.pPoolSizes = &descriptorPoolsCount[0];
+
+    vk::DescriptorPool descriptorPool;
+    WERROR(device.GetDevice().createDescriptorPool(&descriptorPoolInfo, nullptr, &descriptorPool),
+        "Failed to create descriptor pool.");
+
+    // creating one descriptor set
+    vk::DescriptorSetAllocateInfo descriptorSetAllocateInfo;
+    descriptorSetAllocateInfo.pNext = nullptr;
+    descriptorSetAllocateInfo.descriptorPool = descriptorPool;
+    descriptorSetAllocateInfo.descriptorSetCount = 1;
+    descriptorSetAllocateInfo.pSetLayouts = descriptorSetLayout.GetLayouts();
+
+    vk::DescriptorSet descriptorSet[1];
+    WERROR(device.GetDevice().allocateDescriptorSets(&descriptorSetAllocateInfo, &descriptorSet[0]),
+        "Failed to allocate descriptor set.");
+
+    // write descriptor set
+    vk::WriteDescriptorSet writeDescriptorSet;
+    writeDescriptorSet.pNext = nullptr;
+    writeDescriptorSet.dstSet = descriptorSet[0];
+    writeDescriptorSet.descriptorCount = 1;
+    writeDescriptorSet.descriptorType = vk::DescriptorType::eUniformBuffer;
+    writeDescriptorSet.pBufferInfo = &buffer.GetBufferInfo();
+    writeDescriptorSet.dstArrayElement = 0;
+    writeDescriptorSet.dstBinding = 0;
+    device.GetDevice().updateDescriptorSets(1, &writeDescriptorSet, 0, nullptr);
 
     // Poll for user input.
     bool stillRunning = true;

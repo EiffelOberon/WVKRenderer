@@ -25,7 +25,11 @@ private:
 		const vk::MemoryPropertyFlagBits memoryPropertyFlagBits,
 		const vk::MemoryRequirements	 &memRequirement);
 
+    // vulkan objects
 	vk::Image			mImage;
 	vk::ImageView		mImageView;
 	vk::DeviceMemory	mDeviceMem;
+
+    // weak pointer
+    Device              *mDevice;
 };

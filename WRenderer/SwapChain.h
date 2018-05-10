@@ -10,6 +10,7 @@
 #include "DevStructs.h"
 #include "DepthTexture.h"
 
+class Device;
 class DeviceInfo;
 class SwapChain
 {
@@ -29,9 +30,12 @@ private:
 		vk::SurfaceCapabilitiesKHR       &surfaceCapabilities);
 
 	// vulkan objects
-    vk::SwapchainKHR		mSwapChain;
+    vk::SwapchainKHR		        mSwapChain;
 
 	// logical objects for render pipeline
     std::vector<BackBuffer>			mBackBuffers;
 	std::unique_ptr<DepthTexture>	mDepthBuffer;
+
+    // weak object pointer
+    Device                          *mDevice;
 };

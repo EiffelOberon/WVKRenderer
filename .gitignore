@@ -17,7 +17,6 @@ WRenderer/x64/Debug/vc141.idb
 WRenderer/x64/Debug/Texture.obj
 WRenderer/x64/Debug/main.obj
 WRenderer/x64/Debug/SwapChain.obj
-x64/Release/WRenderer.exe
 *.ilk
 x64/Debug/WRenderer.exe
 x64/Release/WRenderer.exe*.idb

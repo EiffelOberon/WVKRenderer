@@ -9,6 +9,7 @@ DepthTexture::DepthTexture(
 	Device				&device,
 	const uint32_t		width,
 	const uint32_t		height)
+    : mDevice(&device)
 {
 	// specify format
 	vk::Format format = vk::Format::eD16Unorm;
@@ -68,14 +69,12 @@ DepthTexture::~DepthTexture()
 
 }
 
-
 vk::MemoryRequirements DepthTexture::GetImageMemoryRequirement(
 	Device					&device,
 	vk::Image				&image)
 {
 	return device.GetDevice().getImageMemoryRequirements(image);
 }
-
 
 int DepthTexture::GetMemoryTypeIndex(
 	const Device    				 &device,

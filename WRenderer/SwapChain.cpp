@@ -5,10 +5,11 @@
 #include "Error.h"
 
 SwapChain::SwapChain(
-    vk::Instance	&instance, 
-    vk::SurfaceKHR	&surface, 
-	Device			&device)
-	: mDepthBuffer(nullptr)
+    vk::Instance	&instance,
+    vk::SurfaceKHR	&surface,
+    Device			&device)
+    : mDepthBuffer(nullptr)
+    , mDevice(&device)
 {
     // Get Surface Capabilities for the device
     vk::SurfaceCapabilitiesKHR surfaceCapabilities;
